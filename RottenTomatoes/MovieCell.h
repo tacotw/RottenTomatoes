@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  MovieCell.h
 //  RottenTomatoes
 //
 //  Created by Taco Chang on 2015/6/15.
@@ -8,13 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
+@interface MovieCell : UITableViewCell
 
 @property (weak, nonatomic) IBOutlet UIImageView *posterView;
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 @property (weak, nonatomic) IBOutlet UILabel *synopsisLabel;
 
-@property (strong, nonatomic) NSDictionary *movie;
-
 @end
-
