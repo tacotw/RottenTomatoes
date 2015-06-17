@@ -18,9 +18,11 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    self.navigationItem.title = self.movie[@"title"];
     self.titleLabel.text = self.movie[@"title"];
     self.synopsisLabel.text = self.movie[@"synopsis"];
     NSString *posterURLString = [self.movie valueForKeyPath:@"posters.detailed"];
+    [self.posterView setImageWithURL:[NSURL URLWithString:posterURLString]];
     posterURLString = [self convertPosterUrlStringToHighRes:posterURLString];
     [self.posterView setImageWithURL:[NSURL URLWithString:posterURLString]];
 }

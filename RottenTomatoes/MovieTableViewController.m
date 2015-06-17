@@ -10,10 +10,12 @@
 #import "MovieCell.h"
 #import "ViewController.h"
 #import <UIImageView+AFNetworking.h>
+#import <SVProgressHUD.h>
 
 @interface MovieTableViewController () <UITableViewDataSource, UITableViewDelegate>
 
 @property (strong, nonatomic) NSArray *movies;
+//@property (strong, nonatomic) UIView *messageView;
 
 @end
 
@@ -25,16 +27,54 @@
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     
+    [self getAPIData];
+    
+    self.refreshControl = [[UIRefreshControl alloc]init];
+    [self.tableView addSubview:self.refreshControl];
+    [self.refreshControl addTarget:self action:@selector(refreshTable) forControlEvents:UIControlEventValueChanged];
+}
+
+- (void) getAPIData {
     NSString *apiURLString = @"http://api.rottentomatoes.com/api/public/v1.0/lists/movies/box_office.json?apikey=dagqdghwaq3e3mxyrp7kmmj5&limit=20&country=us";
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:apiURLString]];
     
+    [SVProgressHUD show];
     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-        self.movies = dict[@"movies"];
-        
-        NSLog(@"%@", self.movies);
-        [self.tableView reloadData];
+        if (connectionError == nil) {
+            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+            self.movies = dict[@"movies"];
+            
+            [self.tableView reloadData];
+            [SVProgressHUD dismiss];
+            [self hideNetworkError];
+        }
+        else {
+            [self showNetworkError];
+            [SVProgressHUD dismiss];
+        }
     }];
+}
+
+- (void)refreshTable {
+    [self.refreshControl endRefreshing];
+    [self getAPIData];
+}
+
+- (void)showNetworkError{
+    UIView *messageView = [[UIView alloc]
+                                initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width, 30)];
+    messageView.backgroundColor = [UIColor yellowColor];
+    UILabel *label = [[UILabel alloc]
+                      initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width, 25)];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.text = @"Network Error!";
+    label.textColor = [UIColor blackColor];
+    [messageView addSubview:label];
+    self.tableView.tableHeaderView = messageView;
+}
+
+- (void)hideNetworkError{
+    self.tableView.tableHeaderView = nil;
 }
 
 - (void)didReceiveMemoryWarning {
